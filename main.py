@@ -1,64 +1,116 @@
-from decimal import Decimal
+from typing import List
+from collections import defaultdict
 
-class BankAccount:
-    def __init__(self, account_id, owner_name, balance=0.0, currency="RON"):
-        assert isinstance(account_id, int) and account_id > 0, "Invalid account ID"
-        assert isinstance(owner_name, str) and owner_name.strip(), "Invalid owner name"
-        assert isinstance(balance, (int, float, Decimal)) and balance >= 0, "Invalid initial balance"
-        assert currency in ("RON", "EUR", "USD"), "Unsupported currency"
 
-        self.account_id = account_id
-        self.owner_name = owner_name
-        self.balance = Decimal(balance)
-        self.currency = currency
-        self.active = True
-        self.transaction_limit = Decimal("10000.00")  # max per transaction
+class Solution:
+    def isValidSudoku(self, board: List[List[str]]) -> bool:
+        columns = defaultdict(set)
+        rows = defaultdict(set)
 
-    def deposit(self, amount):
-        if not self.active:
-            raise Exception("Account is closed")
-        if amount <= 0:
-            raise ValueError("Deposit amount must be positive")
-        if amount > self.transaction_limit:
-            raise ValueError("Deposit exceeds transaction limit")
+        def checkRowsAndColsForUniqueElems():
+            for i in range(9):
+                for j in range(9):
+                    if board[i][j] == ".":
+                        continue
 
-        self.balance += Decimal(amount)
-        return self.balance
+                    if board[i][j] in rows[i] or board[i][j] in columns[j]:
+                        return False
 
-    def withdraw(self, amount):
-        if not self.active:
-            raise Exception("Account is closed")
-        if amount <= 0:
-            raise ValueError("Withdraw amount must be positive")
-        if amount > self.transaction_limit:
-            raise ValueError("Withdraw exceeds transaction limit")
-        if amount > self.balance:
-            raise ValueError("Insufficient funds")
+                    rows[i].add(board[i][j])
+                    columns[j].add(board[i][j])
 
-        self.balance -= Decimal(amount)
-        return self.balance
+            return True
 
-    def transfer(self, target_account, amount):
-        if not isinstance(target_account, BankAccount):
-            raise TypeError("Target must be a BankAccount")
-        if not self.active or not target_account.active:
-            raise Exception("One of the accounts is inactive")
-        if self.currency != target_account.currency:
-            raise ValueError("Currency mismatch")
-        if self.account_id == target_account.account_id:
-            raise ValueError("Cannot transfer to the same account")
+        def checkSubBox(noOfBox):
+            elems = set()
+            startingRow = (noOfBox // 3) * 3
+            startingColumn = (noOfBox % 3) * 3
 
-        self.withdraw(amount)
-        target_account.deposit(amount)
+            for i in range(startingRow, startingRow + 3):
+                for j in range(startingColumn, startingColumn + 3):
+                    if board[i][j] == ".":
+                        continue
+
+                    if board[i][j] in elems:
+                        return False
+
+                    elems.add(board[i][j])
+
+            return True
+
+        if not checkRowsAndColsForUniqueElems():
+            return False
+
+        for i in range(9):
+            if not checkSubBox(i):
+                return False
+
         return True
 
-    def get_balance(self):
-        if not self.active:
-            raise Exception("Account is closed")
-        return float(self.balance)
 
-    def close_account(self):
-        if self.balance > 0:
-            raise Exception("Withdraw remaining balance before closing account")
-        self.active = False
-        return True
+import pytest
+
+
+@pytest.fixture
+def solution():
+    return Solution()
+
+
+def test_valid_sudoku(solution):
+    board = [
+        ["5", "3", ".", ".", "7", ".", ".", ".", "."],
+        ["6", ".", ".", "1", "9", "5", ".", ".", "."],
+        [".", "9", "8", ".", ".", ".", ".", "6", "."],
+        ["8", ".", ".", ".", "6", ".", ".", ".", "3"],
+        ["4", ".", ".", "8", ".", "3", ".", ".", "1"],
+        ["7", ".", ".", ".", "2", ".", ".", ".", "6"],
+        [".", "6", ".", ".", ".", ".", "2", "8", "."],
+        [".", ".", ".", "4", "1", "9", ".", ".", "5"],
+        [".", ".", ".", ".", "8", ".", ".", "7", "9"]
+    ]
+    assert solution.isValidSudoku(board)
+
+
+def test_invalid_row_sudoku(solution):
+    board = [
+        ["5", "3", ".", ".", "7", ".", ".", ".", "5"],
+        ["6", ".", ".", "1", "9", "5", ".", ".", "."],
+        [".", "9", "8", ".", ".", ".", ".", "6", "."],
+        ["8", ".", ".", ".", "6", ".", ".", ".", "3"],
+        ["4", ".", ".", "8", ".", "3", ".", ".", "1"],
+        ["7", ".", ".", ".", "2", ".", ".", ".", "6"],
+        [".", "6", ".", ".", ".", ".", "2", "8", "."],
+        [".", ".", ".", "4", "1", "9", ".", ".", "5"],
+        [".", ".", ".", ".", "8", ".", ".", "7", "9"]
+    ]
+    assert not solution.isValidSudoku(board)
+
+
+def test_invalid_column_sudoku(solution):
+    board = [
+        ["5", "3", ".", ".", "7", ".", ".", ".", "."],
+        ["5", ".", ".", "1", "9", "5", ".", ".", "."],
+        [".", "9", "8", ".", ".", ".", ".", "6", "."],
+        ["8", ".", ".", ".", "6", ".", ".", ".", "3"],
+        ["4", ".", ".", "8", ".", "3", ".", ".", "1"],
+        ["7", ".", ".", ".", "2", ".", ".", ".", "6"],
+        [".", "6", ".", ".", ".", ".", "2", "8", "."],
+        [".", ".", ".", "4", "1", "9", ".", ".", "5"],
+        [".", ".", ".", ".", "8", ".", ".", "7", "9"]
+    ]
+    assert not solution.isValidSudoku(board)
+
+
+def test_invalid_subbox_sudoku(solution):
+    board = [
+        ["5", "3", ".", ".", "7", ".", ".", ".", "."],
+        ["6", "5", ".", "1", "9", "5", ".", ".", "."],
+        [".", "9", "8", ".", ".", ".", ".", "6", "."],
+        ["8", ".", ".", ".", "6", ".", ".", ".", "3"],
+        ["4", ".", ".", "8", ".", "3", ".", ".", "1"],
+        ["7", ".", ".", ".", "2", ".", ".", ".", "6"],
+        [".", "6", ".", ".", ".", ".", "2", "8", "."],
+        [".", ".", ".", "4", "1", "9", ".", ".", "5"],
+        [".", ".", ".", ".", "8", ".", ".", "7", "9"]
+    ]
+    assert not solution.isValidSudoku(board)
