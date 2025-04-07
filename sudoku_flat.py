@@ -1,6 +1,3 @@
-from collections import defaultdict
-
-
 def valid_board_structure(self, board):
     valid_characters = {".", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
 

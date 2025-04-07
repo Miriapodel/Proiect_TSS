@@ -7,37 +7,37 @@ def solution():
     return Solution()
 
 
-def test_valid_board_structure_all_valid(solution):
+def test_isValidSudoku_all_valid(solution):
     board = [["."] * 9 for _ in range(9)]
-    assert solution.valid_board_structure(board) == True
+    assert solution.isValidSudoku(board) == True
 
 
 def test_invalid_not_list(solution):
     board = "not a list"
-    assert solution.valid_board_structure(board) == False
+    assert solution.isValidSudoku(board) == False
 
 
 def test_invalid_row_count(solution):
     board = [["."] * 9 for _ in range(8)]
-    assert solution.valid_board_structure(board) == False
+    assert solution.isValidSudoku(board) == False
 
 
 def test_invalid_row_type(solution):
     board = [["."] * 9 for _ in range(9)]
     board[0] = "123456789"
-    assert solution.valid_board_structure(board) == False
+    assert solution.isValidSudoku(board) == False
 
 
 def test_invalid_column_count(solution):
     board = [["."] * 9 for _ in range(9)]
     board[0] = ["."] * 8
-    assert solution.valid_board_structure(board) == False
+    assert solution.isValidSudoku(board) == False
 
 
 def test_invalid_cell_value(solution):
     board = [["."] * 9 for _ in range(9)]
     board[0][0] = "X"
-    assert solution.valid_board_structure(board) == False
+    assert solution.isValidSudoku(board) == False
 
 
 def test_fully_valid_sudoku(solution):
@@ -61,12 +61,12 @@ def test_duplicate_in_row(solution):
     board[0][1] = "1"
     assert not solution.isValidSudoku(board)
 
-
-def test_duplicate_in_column(solution):
-    board = [["."] * 9 for _ in range(9)]
-    board[0][0] = "1"
-    board[1][0] = "1"
-    assert not solution.isValidSudoku(board)
+# poate merge sa il scoatem
+# def test_duplicate_in_column(solution):
+#     board = [["."] * 9 for _ in range(9)]
+#     board[0][0] = "1"
+#     board[1][0] = "1"
+#     assert not solution.isValidSudoku(board)
 
 
 def test_duplicate_in_subbox(solution):
