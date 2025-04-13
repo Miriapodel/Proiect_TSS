@@ -65,3 +65,25 @@ def test_invalid_subbox_sudoku(solution):
         [".", ".", ".", ".", "8", ".", ".", "7", "9"]
     ]
     assert not solution.isValidSudoku(board)
+
+
+def test_board_with_wrong_number_of_rows(solution):
+    board = [["."] * 9 for _ in range(8)]
+    assert not solution.isValidSudoku(board)
+
+
+def test_row_with_wrong_number_of_columns(solution):
+    board = [["."] * 9 for _ in range(9)]
+    board[3] = ["."] * 8
+    assert not solution.isValidSudoku(board)
+
+
+def test_board_with_invalid_characters(solution):
+    board = [["."] * 9 for _ in range(9)]
+    board[5][5] = "X"
+    assert not solution.isValidSudoku(board)
+
+
+def test_board_not_a_list_of_lists(solution):
+    board = "abobonanaguagua"
+    assert not solution.isValidSudoku(board)
